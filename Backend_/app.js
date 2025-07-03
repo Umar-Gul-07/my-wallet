@@ -10,38 +10,38 @@ import { adminAuth } from './utils/authMiddleware.js';
 import { loginUser, createAdmin } from './controllers/userController.js';
 import { body } from 'express-validator';
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Test database connection
+// Test and sync database
 testConnection();
-
-// Sync database (create tables)
 syncDatabase();
 
-// Fix: Use dedicated routers for login and admin registration to avoid route overlap
+// Separate routers for login and admin creation
 const loginRouter = express.Router();
 const adminRouter = express.Router();
 
 loginRouter.post('/', [body('email').isEmail(), body('password').notEmpty()], loginUser);
-adminRouter.post('/', [body('name').notEmpty(), body('email').isEmail(), body('password').isLength({ min: 6 })], createAdmin);
+adminRouter.post('/', [
+  body('name').notEmpty(),
+  body('email').isEmail(),
+  body('password').isLength({ min: 6 })
+], createAdmin);
 
 // Routes
-app.use('/api/users/login', loginRouter); // login route (no auth)
-app.use('/api/users/admin', adminRouter); // admin registration (no auth)
-app.use('/api/users', adminAuth, userRoutes); // all other user routes (protected)
+app.use('/api/users/login', loginRouter);
+app.use('/api/users/admin', adminRouter);
+app.use('/api/users', adminAuth, userRoutes);
 app.use('/api/loans', adminAuth, loanRoutes);
 app.use('/api/loan-persons', adminAuth, loanPersonRoutes);
 
-// Health check route
+// Health check
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
@@ -50,7 +50,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Add a root route for Vercel/health
+// Root route
 app.get('/', (req, res) => {
   res.json({
     success: true,
@@ -60,25 +60,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({
-    success: false,
-    message: 'Internal server error',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
-  });
-});
-
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route not found'
-  });
-});
-
-// Backup routes
+// Backup route
 app.post('/api/backup/create', async (req, res) => {
   try {
     const result = await createBackup();
@@ -98,7 +80,25 @@ app.post('/api/backup/create', async (req, res) => {
   }
 });
 
-// Auto-backup every 24 hours
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+  });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  });
+});
+
+// Scheduled backup (every 24 hours)
 setInterval(async () => {
   try {
     console.log('🔄 Running scheduled backup...');
@@ -108,12 +108,7 @@ setInterval(async () => {
   } catch (error) {
     console.error('❌ Scheduled backup failed:', error);
   }
-}, 24 * 60 * 60 * 1000); // 24 hours
+}, 24 * 60 * 60 * 1000);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 KakaWallet API server running on port ${PORT}`);
-  console.log(`📊 Database: SQLite with Sequelize ORM`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`💾 Auto-backup enabled (every 24 hours)`);
-});
+// ✅ Export app for Vercel (no app.listen)
+export default app;
