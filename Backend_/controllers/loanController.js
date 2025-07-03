@@ -41,7 +41,8 @@ export const addLoan = async (req, res) => {
       type,
       amount: parseFloat(amount),
       description: description || '',
-      date: new Date()
+      date: new Date(),
+      adminId: req.user.id
     });
 
     // Get updated loan person with loans to calculate new totals
@@ -127,6 +128,7 @@ export const getUserLoans = async (req, res) => {
 export const getAllLoans = async (req, res) => {
   try {
     const loans = await Loan.findAll({
+      where: { adminId: req.user.id },
       include: [{
         model: LoanPerson,
         as: 'loanPerson',

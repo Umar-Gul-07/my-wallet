@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-03T08:03:34.178Z",
+    "totalUsers": 2,
+    "totalLoanPersons": 0
+  },
+  "users": [
+    {
+      "id": 1,
+      "name": "Admin User",
+      "email": "admin@kakawallet.com",
+      "phone": "+1234567890",
+      "address": null,
+      "password": "admin123",
+      "joinDate": "2025-07-02T08:03:34.278Z",
+      "status": "active",
+      "notes": null,
+      "isAdmin": true,
+      "createdAt": "2025-07-02T08:03:34.279Z",
+      "updatedAt": "2025-07-02T08:03:34.279Z",
+      "transactions": []
+    },
+    {
+      "id": 2,
+      "name": "haroon",
+      "email": "haroon@gmail.com",
+      "phone": "02138423438904",
+      "address": "jkahsdfsfjd",
+      "password": null,
+      "joinDate": "2025-07-02T09:56:45.194Z",
+      "status": "active",
+      "notes": "ajksndl",
+      "isAdmin": false,
+      "createdAt": "2025-07-02T09:56:45.194Z",
+      "updatedAt": "2025-07-02T09:56:45.194Z",
+      "transactions": [
+        {
+          "id": 1,
+          "userId": 2,
+          "type": "given",
+          "amount": 340,
+          "description": "bbnbm",
+          "date": "2025-07-02T09:59:53.370Z",
+          "createdAt": "2025-07-02T09:59:53.370Z",
+          "updatedAt": "2025-07-02T09:59:53.370Z"
+        }
+      ]
+    }
+  ],
+  "loanPersons": []
+}

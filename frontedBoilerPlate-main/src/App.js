@@ -37,16 +37,16 @@ function App() {
           <Route path="/sign-up" element={<Registration />} />
 
           {/* Protected Routes */}
-          <Route path='/' element={<Base><Home/></Base>} />
-          <Route path="/home" element={<Base><Home/></Base>} />
-          <Route path="/wallets" element={<Base><Protected><Wallets /></Protected></Base>} />
-          <Route path="/budgets" element={<Base><Protected><Budgets /></Protected></Base>} />
-          <Route path="/people" element={<Base><Protected><People /></Protected></Base>} />
-          <Route path="/settings" element={<Base><Protected><Settings /></Protected></Base>} />
-          <Route path="/profiles" element={<Base><Protected><Profile /></Protected></Base>} />
-          <Route path="/loans" element={<Base><Protected><Loans /></Protected></Base>} />
+          <Route path='/' element={<Protected><Base><Home/></Base></Protected>} />
+          <Route path="/home" element={<Protected><Base><Home/></Base></Protected>} />
+          <Route path="/wallets" element={<Protected><Base><Wallets /></Base></Protected>} />
+          <Route path="/budgets" element={<Protected><Base><Budgets /></Base></Protected>} />
+          <Route path="/people" element={<Protected><Base><People /></Base></Protected>} />
+          <Route path="/settings" element={<Protected><Base><Settings /></Base></Protected>} />
+          <Route path="/profiles" element={<Protected><Base><Profile /></Base></Protected>} />
+          <Route path="/loans" element={<Protected><Base><Loans /></Base></Protected>} />
 
-          <Route path='*' element={<PageNotFound404 />} />
+          <Route path='*' element={<Protected><PageNotFound404 /></Protected>} />
 
         </Routes>
 

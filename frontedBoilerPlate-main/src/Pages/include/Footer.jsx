@@ -10,7 +10,7 @@ function Footer() {
                             <div className="copyright">
                                 <p>
                                     © Copyright 2025
-                                    <a href="#">Ekash</a> I All Rights Reserved
+                                    <a href="#">Umar Gul</a> I All Rights Reserved
                                 </p>
                             </div>
                         </div>

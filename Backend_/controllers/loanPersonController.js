@@ -6,6 +6,7 @@ import { validationResult } from 'express-validator';
 export const getAllLoanPersons = async (req, res) => {
   try {
     const loanPersons = await LoanPerson.findAll({
+      where: { adminId: req.user.id },
       include: [
         {
           model: Loan,
@@ -68,7 +69,8 @@ export const createLoanPerson = async (req, res) => {
       phone,
       notes,
       status: 'active',
-      joinDate: new Date()
+      joinDate: new Date(),
+      adminId: req.user.id
     });
 
     res.status(201).json({

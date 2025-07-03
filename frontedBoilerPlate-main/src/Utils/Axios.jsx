@@ -12,9 +12,19 @@ const api = axios.create({
   },
 });
 
-// Request interceptor for logging
+// Request interceptor for logging and adminId header
 api.interceptors.request.use(
   (config) => {
+    // Add x-admin-id header for all requests except login/admin registration
+    if (
+      !config.url.includes('/users/login') &&
+      !config.url.includes('/users/admin')
+    ) {
+      const userInfo = JSON.parse(localStorage.getItem('UserInfo'));
+      if (userInfo && userInfo.id) {
+        config.headers['x-admin-id'] = userInfo.id;
+      }
+    }
     console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
     return config;
   },

@@ -3,7 +3,7 @@ import { useAuth } from '../../Utils/useAuth'
 import { useTheme } from '../../Utils/useTheme'
 
 function Header() {
-  const { Admin, logout } = useAuth()
+  const { UserInfo, logout } = useAuth()
   const { isDarkMode, toggleTheme } = useTheme()
 
   return (
@@ -136,8 +136,8 @@ function Header() {
                             />
                           </span>
                           <div className="user-info">
-                            <h5>{Admin ? Admin.name : 'Admin User'}</h5>
-                            <span>{Admin ? Admin.email : 'admin@kakawallet.com'}</span>
+                            <h5>{UserInfo ? UserInfo.name : 'User'}</h5>
+                            <span>{UserInfo ? UserInfo.email : ''}</span>
                           </div>
                         </div>
                       </div>

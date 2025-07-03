@@ -5,22 +5,21 @@ import { Store } from './Store'
 export const useAuth = () => {
   const { state, dispatch } = useContext(Store)
   const navigate = useNavigate()
-  const { Admin } = state
+  const { UserInfo } = state
 
-  const login = (adminData) => {
-    localStorage.setItem('Admin', JSON.stringify(adminData))
-    dispatch({ type: 'Admin', payload: adminData })
+  const login = (userData) => {
+    localStorage.setItem('UserInfo', JSON.stringify(userData))
+    dispatch({ type: 'LawyerLogin', payload: userData })
   }
 
   const logout = () => {
-    localStorage.removeItem('Admin')
-    dispatch({ type: 'AdminLogout' })
+    localStorage.removeItem('UserInfo')
+    dispatch({ type: 'LawyerLogout' })
     navigate('/login')
   }
 
   const checkAuth = () => {
-    // Check if user is logged in (either admin or regular user)
-    return Admin !== null
+    return UserInfo !== null
   }
 
   const requireAuth = () => {
@@ -32,7 +31,7 @@ export const useAuth = () => {
   }
 
   return {
-    Admin,
+    UserInfo,
     login,
     logout,
     checkAuth,

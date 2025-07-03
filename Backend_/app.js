@@ -6,6 +6,9 @@ import userRoutes from './routes/userRoutes.js';
 import loanRoutes from './routes/loanRoutes.js';
 import loanPersonRoutes from './routes/loanPersonRoutes.js';
 import { createBackup, createDatabaseBackup } from './backup.js';
+import { adminAuth } from './utils/authMiddleware.js';
+import { loginUser, createAdmin } from './controllers/userController.js';
+import { body } from 'express-validator';
 
 // Load environment variables
 dotenv.config();
@@ -24,16 +27,35 @@ testConnection();
 // Sync database (create tables)
 syncDatabase();
 
+// Fix: Use dedicated routers for login and admin registration to avoid route overlap
+const loginRouter = express.Router();
+const adminRouter = express.Router();
+
+loginRouter.post('/', [body('email').isEmail(), body('password').notEmpty()], loginUser);
+adminRouter.post('/', [body('name').notEmpty(), body('email').isEmail(), body('password').isLength({ min: 6 })], createAdmin);
+
 // Routes
-app.use('/api/users', userRoutes);
-app.use('/api/loans', loanRoutes);
-app.use('/api/loan-persons', loanPersonRoutes);
+app.use('/api/users/login', loginRouter); // login route (no auth)
+app.use('/api/users/admin', adminRouter); // admin registration (no auth)
+app.use('/api/users', adminAuth, userRoutes); // all other user routes (protected)
+app.use('/api/loans', adminAuth, loanRoutes);
+app.use('/api/loan-persons', adminAuth, loanPersonRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
     message: 'KakaWallet API is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Add a root route for Vercel/health
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Welcome to KakaWallet API! Visit /api/health for status.',
+    docs: '/api/health',
     timestamp: new Date().toISOString()
   });
 });

@@ -9,7 +9,7 @@ import Loan from '../models/Loan.js';
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
-      where: { isAdmin: false }, // Only get people you keep money for
+      where: { isAdmin: false, adminId: req.user.id }, // Only get people for this admin
       include: [{
         model: Transaction,
         as: 'transactions',
@@ -109,6 +109,12 @@ export const getUserById = async (req, res) => {
 // Create new user (for people you keep money for)
 export const createUser = async (req, res) => {
   try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized: Admin authentication required. Please log in as admin.'
+      });
+    }
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -146,7 +152,8 @@ export const createUser = async (req, res) => {
       phone,
       address,
       notes,
-      isAdmin: false // Default to false, only set true for admin
+      isAdmin: false, // Default to false, only set true for admin
+      adminId: req.user.id // Set owner
     });
 
     // Don't send password in response
@@ -168,7 +175,7 @@ export const createUser = async (req, res) => {
   }
 };
 
-// Create admin user (only for initial setup)
+// Create admin user (allow multiple admins)
 export const createAdmin = async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -181,15 +188,6 @@ export const createAdmin = async (req, res) => {
     }
 
     const { name, email, password } = req.body;
-
-    // Check if admin already exists
-    const existingAdmin = await User.findOne({ where: { isAdmin: true } });
-    if (existingAdmin) {
-      return res.status(400).json({
-        success: false,
-        message: 'Admin already exists. Only one admin is allowed.'
-      });
-    }
 
     // Check if email already exists
     if (email) {
@@ -366,7 +364,9 @@ export const addTransaction = async (req, res) => {
     const { userId } = req.params;
     const { type, amount, description } = req.body;
 
-    const user = await User.findByPk(userId, {
+    // Only allow if the user belongs to this admin
+    const user = await User.findOne({
+      where: { id: userId, adminId: req.user.id },
       include: [{
         model: Transaction,
         as: 'transactions',
@@ -399,7 +399,8 @@ export const addTransaction = async (req, res) => {
       type,
       amount: parseFloat(amount),
       description: description || '',
-      date: new Date()
+      date: new Date(),
+      adminId: req.user.id // Set owner
     });
 
     // Get updated user with transactions to calculate new totals
@@ -448,7 +449,8 @@ export const getUserTransactions = async (req, res) => {
     const { userId } = req.params;
     const { page = 1, limit = 20 } = req.query;
 
-    const user = await User.findByPk(userId);
+    // Only allow if the user belongs to this admin
+    const user = await User.findOne({ where: { id: userId, adminId: req.user.id } });
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -458,7 +460,7 @@ export const getUserTransactions = async (req, res) => {
 
     const offset = (page - 1) * limit;
     const transactions = await Transaction.findAndCountAll({
-      where: { userId },
+      where: { userId, adminId: req.user.id },
       order: [['date', 'DESC']],
       limit: parseInt(limit),
       offset: parseInt(offset)
@@ -488,7 +490,7 @@ export const getDashboardStats = async (req, res) => {
   try {
     // Get all users with their transactions (Money Keeping)
     const users = await User.findAll({
-      where: { isAdmin: false },
+      where: { isAdmin: false, adminId: req.user.id },
       include: [{
         model: Transaction,
         as: 'transactions',
@@ -498,6 +500,7 @@ export const getDashboardStats = async (req, res) => {
 
     // Get all loan persons with their loans
     const loanPersons = await LoanPerson.findAll({
+      where: { adminId: req.user.id },
       include: [{
         model: Loan,
         as: 'loans',

@@ -57,6 +57,12 @@ const User = sequelize.define('User', {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
     comment: 'Whether this user is the admin/money keeper'
+  },
+  adminId: {
+    type: DataTypes.INTEGER,
+    allowNull: true, // Only set for people, not for admin users
+    references: { model: 'users', key: 'id' },
+    comment: 'The admin who owns this person record'
   }
 }, {
   tableName: 'users',

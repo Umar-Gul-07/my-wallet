@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { userAPI } from '../Utils/apiService.js';
+import { useAuth } from '../Utils/useAuth';
 
 const Home = () => {
+    const { UserInfo } = useAuth();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -103,7 +105,7 @@ const Home = () => {
                                 <div className="row align-items-center justify-content-between">
                                     <div className="col-xl-4">
                                         <div className="page-title-content">
-                                            <h3>Kaka Wallet Dashboard</h3>
+                                            <h3>{`Welcome ${UserInfo && UserInfo.name ? UserInfo.name : ''}`}</h3>
                                             <p className="mb-2">Welcome to your comprehensive money management system</p>
                                         </div>
                                     </div>

@@ -37,6 +37,12 @@ const Loan = sequelize.define('Loan', {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
     allowNull: false
+  },
+  adminId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: { model: 'users', key: 'id' },
+    comment: 'The admin who owns this loan record'
   }
 }, {
   tableName: 'loans'

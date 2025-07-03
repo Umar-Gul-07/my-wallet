@@ -37,6 +37,12 @@ const Transaction = sequelize.define('Transaction', {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
     allowNull: false
+  },
+  adminId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: { model: 'users', key: 'id' },
+    comment: 'The admin who owns this transaction record'
   }
 }, {
   tableName: 'transactions'
