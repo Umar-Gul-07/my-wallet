@@ -15,6 +15,7 @@ import Registration from "./Pages/Registration";
 import ChartInitializer from "./Utils/ChartInitializer";
 import Protected from "./Security/Protected";
 import { ThemeProvider } from "./Utils/useTheme";
+import DebugBackend from "./Utils/DebugBackend";
 
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/sign-in" element={<Login />} />
           <Route path="/sign-up" element={<Registration />} />
+          <Route path="/debug" element={<DebugBackend />} />
 
           {/* Protected Routes */}
           <Route path='/' element={<Protected><Base><Home/></Base></Protected>} />

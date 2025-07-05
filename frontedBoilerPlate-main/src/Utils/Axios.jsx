@@ -1,31 +1,29 @@
 import axios from 'axios';
 
-// const authToken = 'your_auth_token'; 
-
-// Create a new instance of Axios
+// Create a new Axios instance
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // Updated to match backend port
-  timeout: 10000, // Increased timeout for better reliability
+  baseURL: 'https://kaka-wallet-backend-production.up.railway.app/api', // ✅ Include `/api` here
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-    // 'Authorization': `Bearer ${authToken}`,
   },
 });
 
-// Request interceptor for logging and adminId header
+// Request interceptor
 api.interceptors.request.use(
   (config) => {
-    // Add x-admin-id header for all requests except login/admin registration
+    // Attach x-admin-id from localStorage for protected routes
     if (
       !config.url.includes('/users/login') &&
       !config.url.includes('/users/admin')
     ) {
       const userInfo = JSON.parse(localStorage.getItem('UserInfo'));
-      if (userInfo && userInfo.id) {
+      if (userInfo?.id) {
         config.headers['x-admin-id'] = userInfo.id;
       }
     }
-    console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+
+    console.log(`🚀 Request: [${config.method?.toUpperCase()}] ${config.baseURL}${config.url}`);
     return config;
   },
   (error) => {
@@ -34,14 +32,15 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor for error handling
+// Response interceptor
 api.interceptors.response.use(
   (response) => {
-    console.log(`✅ API Response: ${response.status} ${response.config.url}`);
+    console.log(`✅ Response: [${response.status}] ${response.config.url}`);
     return response;
   },
   (error) => {
-    console.error('❌ Response Error:', error.response?.data || error.message);
+    const errData = error.response?.data || error.message;
+    console.error('❌ Response Error:', errData);
     return Promise.reject(error);
   }
 );

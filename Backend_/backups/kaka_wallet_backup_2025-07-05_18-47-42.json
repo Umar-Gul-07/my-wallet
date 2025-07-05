@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-05T17:47:43.705Z",
+    "totalUsers": 1,
+    "totalLoanPersons": 0
+  },
+  "users": [
+    {
+      "id": 1,
+      "name": "Admin User",
+      "email": "admin@kakawallet.com",
+      "phone": "+1234567890",
+      "address": null,
+      "password": "admin123",
+      "joinDate": "2025-07-04T16:11:18.522Z",
+      "status": "active",
+      "notes": null,
+      "isAdmin": true,
+      "adminId": null,
+      "createdAt": "2025-07-04T16:11:18.539Z",
+      "updatedAt": "2025-07-04T16:11:18.539Z",
+      "transactions": []
+    }
+  ],
+  "loanPersons": []
+}

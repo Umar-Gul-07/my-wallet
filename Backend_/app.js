@@ -10,38 +10,50 @@ import { adminAuth } from './utils/authMiddleware.js';
 import { loginUser, createAdmin } from './controllers/userController.js';
 import { body } from 'express-validator';
 
+// Load environment variables
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://your-frontend-domain.vercel.app', '*'], // Add your frontend domain
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'x-admin-id', 'Authorization'],
+  credentials: true
+}));
+
+// Add request logging middleware
+app.use((req, res, next) => {
+  console.log(`📥 ${req.method} ${req.path} - ${new Date().toISOString()}`);
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Test and sync database
+// Test database connection
 testConnection();
+
+// Sync database (create tables)
 syncDatabase();
 
-// Separate routers for login and admin creation
+// Fix: Use dedicated routers for login and admin registration to avoid route overlap
 const loginRouter = express.Router();
 const adminRouter = express.Router();
 
 loginRouter.post('/', [body('email').isEmail(), body('password').notEmpty()], loginUser);
-adminRouter.post('/', [
-  body('name').notEmpty(),
-  body('email').isEmail(),
-  body('password').isLength({ min: 6 })
-], createAdmin);
+adminRouter.post('/', [body('name').notEmpty(), body('email').isEmail(), body('password').isLength({ min: 6 })], createAdmin);
 
 // Routes
-app.use('/api/users/login', loginRouter);
-app.use('/api/users/admin', adminRouter);
-app.use('/api/users', adminAuth, userRoutes);
+app.use('/api/users/login', loginRouter); // login route (no auth)
+app.use('/api/users/admin', adminRouter); // admin registration (no auth)
+app.use('/api/users', adminAuth, userRoutes); // all other user routes (protected)
 app.use('/api/loans', adminAuth, loanRoutes);
 app.use('/api/loan-persons', adminAuth, loanPersonRoutes);
 
-// Health check
+// Health check route
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
@@ -50,17 +62,39 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Root route
+// Root route for Railway/Vercel visits
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'Welcome to KakaWallet API! Visit /api/health for status.',
-    docs: '/api/health',
+    message: 'Welcome to KakaWallet API!',
+    endpoints: {
+      health: '/api/health',
+      adminRegistration: '/api/users/admin',
+      login: '/api/users/login'
+    },
     timestamp: new Date().toISOString()
   });
 });
 
-// Backup route
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+  });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  });
+});
+
+// Backup routes
 app.post('/api/backup/create', async (req, res) => {
   try {
     const result = await createBackup();
@@ -80,25 +114,7 @@ app.post('/api/backup/create', async (req, res) => {
   }
 });
 
-// Error handler
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({
-    success: false,
-    message: 'Internal server error',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
-  });
-});
-
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route not found'
-  });
-});
-
-// Scheduled backup (every 24 hours)
+// Auto-backup every 24 hours
 setInterval(async () => {
   try {
     console.log('🔄 Running scheduled backup...');
@@ -108,7 +124,12 @@ setInterval(async () => {
   } catch (error) {
     console.error('❌ Scheduled backup failed:', error);
   }
-}, 24 * 60 * 60 * 1000);
+}, 24 * 60 * 60 * 1000); // 24 hours
 
-// ✅ Export app for Vercel (no app.listen)
-export default app;
+// Start server
+app.listen(PORT, () => {
+  console.log(`🚀 KakaWallet API server running on port ${PORT}`);
+  console.log(`📊 Database: SQLite with Sequelize ORM`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`💾 Auto-backup enabled (every 24 hours)`);
+});

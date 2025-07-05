@@ -34,8 +34,8 @@ const Login = () => {
                     id: response.data.id,
                     name: response.data.name,
                     email: response.data.email,
-                    isAdmin: false,
-                    role: 'user',
+                    isAdmin: response.data.isAdmin,
+                    role: response.data.isAdmin ? 'admin' : 'user',
                     ...response.data
                 }
                 login(userData)
