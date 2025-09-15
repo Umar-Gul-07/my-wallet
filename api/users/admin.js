@@ -1,4 +1,11 @@
-export default function handler(req, res) {
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+import { sequelize } from '../config/database.js';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-admin-id');
@@ -27,18 +34,74 @@ export default function handler(req, res) {
     });
   }
 
-  // SIMPLE ADMIN CREATION - FOR TESTING
-  res.status(201).json({
-    success: true,
-    message: 'Admin created successfully',
-    data: {
-      user: {
-        id: 1,
-        name: name,
-        email: email,
-        isAdmin: true
-      },
-      token: 'test-token-123'
+  try {
+    // If database is available, use it
+    if (sequelize && User) {
+      await sequelize.authenticate();
+
+      // Check if admin already exists
+      const existingAdmin = await User.findOne({ where: { email } });
+      if (existingAdmin) {
+        return res.status(400).json({
+          success: false,
+          message: 'Admin with this email already exists'
+        });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create admin user
+      const admin = await User.create({
+        name,
+        email,
+        password: hashedPassword,
+        isAdmin: true,
+        status: 'active'
+      });
+
+      // Generate JWT token
+      const token = jwt.sign(
+        { id: admin.id, email: admin.email, isAdmin: admin.isAdmin },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      res.status(201).json({
+        success: true,
+        message: 'Admin created successfully',
+        data: {
+          user: {
+            id: admin.id,
+            name: admin.name,
+            email: admin.email,
+            isAdmin: admin.isAdmin
+          },
+          token
+        }
+      });
+    } else {
+      // Fallback to test admin creation when no database
+      res.status(201).json({
+        success: true,
+        message: 'Admin created successfully (test mode)',
+        data: {
+          user: {
+            id: Math.floor(Math.random() * 1000),
+            name: name,
+            email: email,
+            isAdmin: true
+          },
+          token: 'test-token-123'
+        }
+      });
     }
-  });
+  } catch (error) {
+    console.error('Admin creation error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+    });
+  }
 }
