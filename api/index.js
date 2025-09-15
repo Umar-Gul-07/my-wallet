@@ -8,13 +8,16 @@ export default function handler(req, res) {
     return res.status(200).end();
   }
 
-  console.log('Health check called:', req.method, req.url);
+  console.log('Root API called:', req.method, req.url);
 
   res.status(200).json({
     success: true,
-    message: 'KakaWallet API is running on Vercel',
+    message: 'Welcome to KakaWallet API on Vercel!',
     timestamp: new Date().toISOString(),
-    method: req.method,
-    url: req.url
+    endpoints: {
+      health: '/api/health',
+      login: '/api/users/login',
+      admin: '/api/users/admin'
+    }
   });
 }

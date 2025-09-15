@@ -2,7 +2,7 @@
   "name": "kaka-wallet-vercel-backend",
   "version": "1.0.0",
   "description": "KakaWallet Backend for Vercel Deployment",
-  "main": "api/health.js",
+  "main": "api/index.js",
   "scripts": {
     "dev": "vercel dev",
     "build": "echo 'No build step required for serverless functions'",
