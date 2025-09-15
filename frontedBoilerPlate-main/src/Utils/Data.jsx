@@ -22,6 +22,6 @@ const teamMembers = [
    
 ];
 
-const server_ip = 'http://localhost:5000/api'
+const server_ip = 'https://my-wallet-2r1pcmtz3-umar-guls-projects.vercel.app/api'
 
 export { ContactInfo, teamMembers, server_ip}

@@ -1,11 +1,11 @@
-// Test script to check Railway backend connection from frontend
+// Test script to check Vercel backend connection from frontend
 const testBackendConnection = async () => {
-  console.log('🧪 Testing Railway Backend from Frontend...\n');
+  console.log('🧪 Testing Vercel Backend from Frontend...\n');
 
   try {
     // Test 1: Health endpoint
     console.log('1. Testing health endpoint...');
-    const healthResponse = await fetch('https://kaka-wallet-backend-production.up.railway.app/api/health');
+    const healthResponse = await fetch('https://my-wallet-2r1pcmtz3-umar-guls-projects.vercel.app/api/health');
     const healthData = await healthResponse.json();
     console.log('Health Status:', healthResponse.status);
     console.log('Health Data:', healthData);
@@ -13,7 +13,7 @@ const testBackendConnection = async () => {
 
     // Test 2: Login endpoint
     console.log('2. Testing login endpoint...');
-    const loginResponse = await fetch('https://kaka-wallet-backend-production.up.railway.app/api/users/login', {
+    const loginResponse = await fetch('https://my-wallet-2r1pcmtz3-umar-guls-projects.vercel.app/api/users/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ const testBackendConnection = async () => {
 
     // Test 3: Admin registration
     console.log('3. Testing admin registration...');
-    const adminResponse = await fetch('https://kaka-wallet-backend-production.up.railway.app/api/users/admin', {
+    const adminResponse = await fetch('https://my-wallet-2r1pcmtz3-umar-guls-projects.vercel.app/api/users/admin', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

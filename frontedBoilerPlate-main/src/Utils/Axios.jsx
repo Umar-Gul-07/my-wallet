@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create a new Axios instance
 const api = axios.create({
-  baseURL: 'https://kaka-wallet-backend-production.up.railway.app/api', // ✅ Include `/api` here
+  baseURL: 'https://my-wallet-2r1pcmtz3-umar-guls-projects.vercel.app/api', // ✅ Vercel backend URL
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
