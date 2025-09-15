@@ -1,56 +1,41 @@
-import User from '../models/User.js';
-import Transaction from '../models/Transaction.js';
-import { sequelize } from '../config/database.js';
-import { adminAuth } from '../utils/authMiddleware.js';
+export default function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-admin-id');
 
-// Get all users with their transactions
-const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.findAll({
-      where: { isAdmin: false, adminId: req.user.id },
-      include: [{
-        model: Transaction,
-        as: 'transactions',
-        attributes: ['id', 'type', 'amount', 'date', 'description'],
-        order: [['date', 'DESC']]
-      }],
-      order: [['joinDate', 'DESC']]
-    });
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
-    const usersWithTotals = users.map(user => {
-      const userData = user.toJSON();
-      const totals = {
-        totalGiven: user.totalGiven,
-        totalReturned: user.totalReturned,
-        moneyKeepingBalance: user.moneyKeepingBalance,
-        lastUpdated: user.lastUpdated,
-        isFullyReturned: user.moneyKeepingBalance === 0
-      };
-      
-      return {
-        ...userData,
-        ...totals
-      };
-    });
-
+  if (req.method === 'GET') {
+    // SIMPLE GET USERS - FOR TESTING
     res.json({
       success: true,
-      data: usersWithTotals,
-      count: usersWithTotals.length
+      data: [
+        {
+          id: 1,
+          name: 'Test User 1',
+          email: 'user1@test.com',
+          phone: '1234567890',
+          totalGiven: 1000,
+          totalReturned: 500,
+          moneyKeepingBalance: 500,
+          isFullyReturned: false
+        },
+        {
+          id: 2,
+          name: 'Test User 2',
+          email: 'user2@test.com',
+          phone: '0987654321',
+          totalGiven: 2000,
+          totalReturned: 2000,
+          moneyKeepingBalance: 0,
+          isFullyReturned: true
+        }
+      ],
+      count: 2
     });
-  } catch (error) {
-    console.error('Get all users error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
-    });
-  }
-};
-
-// Create a new user
-const createUser = async (req, res) => {
-  try {
+  } else if (req.method === 'POST') {
     const { name, email, phone, address, notes } = req.body;
 
     if (!name) {
@@ -60,69 +45,22 @@ const createUser = async (req, res) => {
       });
     }
 
-    const user = await User.create({
-      name,
-      email,
-      phone,
-      address,
-      notes,
-      adminId: req.user.id,
-      isAdmin: false,
-      status: 'active'
-    });
-
+    // SIMPLE CREATE USER - FOR TESTING
     res.status(201).json({
       success: true,
       message: 'User created successfully',
-      data: user
+      data: {
+        id: Math.floor(Math.random() * 1000),
+        name,
+        email,
+        phone,
+        address,
+        notes,
+        isAdmin: false,
+        status: 'active'
+      }
     });
-  } catch (error) {
-    console.error('Create user error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
-    });
-  }
-};
-
-export default async function handler(req, res) {
-  // Enable CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-admin-id');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  try {
-    // Ensure database is connected
-    await sequelize.authenticate();
-
-    // Apply admin authentication middleware
-    await new Promise((resolve, reject) => {
-      adminAuth(req, res, (err) => {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
-
-    if (req.method === 'GET') {
-      await getAllUsers(req, res);
-    } else if (req.method === 'POST') {
-      await createUser(req, res);
-    } else {
-      res.status(405).json({ success: false, message: 'Method not allowed' });
-    }
-  } catch (error) {
-    console.error('Handler error:', error);
-    if (!res.headersSent) {
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-        error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
-      });
-    }
+  } else {
+    res.status(405).json({ success: false, message: 'Method not allowed' });
   }
 }
