@@ -12,9 +12,10 @@ export default function handler(req, res) {
 
   res.status(200).json({
     success: true,
-    message: 'KakaWallet API is running on Vercel',
+    message: 'KakaWallet API is running on Vercel - FIXED VERSION',
     timestamp: new Date().toISOString(),
     method: req.method,
-    url: req.url
+    url: req.url,
+    version: '2.0'
   });
 }
