@@ -30,9 +30,13 @@ export const sequelize = new Sequelize({
 export const testConnection = async () => {
   try {
     await sequelize.authenticate();
-    console.log('✅ Database connection established successfully.');
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('✅ Database connection established successfully.');
+    }
   } catch (error) {
-    console.error('❌ Unable to connect to the database:', error);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('❌ Unable to connect to the database:', error);
+    }
   }
 };
 
@@ -45,9 +49,11 @@ export const syncDatabase = async () => {
     await import('../models/LoanPerson.js');
     await import('../models/Loan.js');
     
-    // Sync without force to preserve existing data
-    await sequelize.sync({ alter: true });
-    console.log('✅ Database synchronized successfully.');
+    // Avoid SQLite alter migrations that cause backup/column mismatch issues
+    await sequelize.sync();
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('✅ Database synchronized successfully.');
+    }
     
     // Create default admin if none exists
     const { default: User } = await import('../models/User.js');
@@ -59,9 +65,13 @@ export const syncDatabase = async () => {
         password: 'admin123',
         isAdmin: true
       });
-      console.log('✅ Admin user created successfully.');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('✅ Admin user created successfully.');
+      }
     }
   } catch (error) {
-    console.error('❌ Database sync error:', error);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('❌ Database sync error:', error);
+    }
   }
 }; 

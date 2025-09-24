@@ -1,8 +1,14 @@
 import axios from 'axios';
 
+// Resolve API base URL from env or global override; fallback to relative /api
+const ENV_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL ||
+  (typeof window !== 'undefined' && window.__API_BASE_URL__) ||
+  '/api';
+
 // Create a new Axios instance
 const api = axios.create({
-  baseURL: 'https://my-wallet-2r1pcmtz3-umar-guls-projects.vercel.app/api', // ✅ Vercel backend URL
+  baseURL: ENV_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -23,11 +29,18 @@ api.interceptors.request.use(
       }
     }
 
-    console.log(`🚀 Request: [${config.method?.toUpperCase()}] ${config.baseURL}${config.url}`);
+    if (process.env.NODE_ENV !== 'production') {
+      // Log only in development
+      // eslint-disable-next-line no-console
+      console.log(`🚀 Request: [${config.method?.toUpperCase()}] ${config.baseURL}${config.url}`);
+    }
     return config;
   },
   (error) => {
-    console.error('❌ Request Error:', error);
+    if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line no-console
+      console.error('❌ Request Error:', error);
+    }
     return Promise.reject(error);
   }
 );
@@ -35,12 +48,18 @@ api.interceptors.request.use(
 // Response interceptor
 api.interceptors.response.use(
   (response) => {
-    console.log(`✅ Response: [${response.status}] ${response.config.url}`);
+    if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line no-console
+      console.log(`✅ Response: [${response.status}] ${response.config.url}`);
+    }
     return response;
   },
   (error) => {
-    const errData = error.response?.data || error.message;
-    console.error('❌ Response Error:', errData);
+    if (process.env.NODE_ENV !== 'production') {
+      const errData = error.response?.data || error.message;
+      // eslint-disable-next-line no-console
+      console.error('❌ Response Error:', errData);
+    }
     return Promise.reject(error);
   }
 );

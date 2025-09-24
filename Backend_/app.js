@@ -17,18 +17,38 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+// Configure CORS with an allowlist to avoid wildcard with credentials
+const defaultAllowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'https://your-frontend-domain.vercel.app'
+];
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
+const corsAllowlist = allowedOrigins.length ? allowedOrigins : defaultAllowedOrigins;
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://your-frontend-domain.vercel.app', '*'], // Add your frontend domain
+  origin: (origin, callback) => {
+    // Allow non-browser requests (like curl/postman) where origin is undefined
+    if (!origin) return callback(null, true);
+    if (corsAllowlist.includes(origin)) return callback(null, true);
+    return callback(new Error('Not allowed by CORS'));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'x-admin-id', 'Authorization'],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200
 }));
 
-// Add request logging middleware
-app.use((req, res, next) => {
-  console.log(`📥 ${req.method} ${req.path} - ${new Date().toISOString()}`);
-  next();
-});
+// Add request logging middleware (disabled in production)
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    console.log(`📥 ${req.method} ${req.path} - ${new Date().toISOString()}`);
+    next();
+  });
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
