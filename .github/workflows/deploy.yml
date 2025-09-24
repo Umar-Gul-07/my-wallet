@@ -31,7 +31,7 @@ jobs:
           APP_NAME: kaka-wallet
           APP_DIR: /var/www/kaka-wallet
           BACKEND_DIR: Backend_
-          PORT: 5001
+          PORT: 5002
         run: |
           # Copy the repo (optional; script clones itself from REPO_URL). Here we just ensure deploy script is present.
           scp -r scripts $EC2_USER@${EC2_HOST}:/tmp/kaka-wallet-scripts
