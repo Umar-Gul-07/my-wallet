@@ -1,10 +1,15 @@
 import axios from 'axios';
 
-// Resolve API base URL from env or global override; fallback to relative /api
-const ENV_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL ||
+// Resolve API base URL with smart local-dev default to backend:5001
+let ENV_BASE_URL = process.env.REACT_APP_API_BASE_URL ||
   (typeof window !== 'undefined' && window.__API_BASE_URL__) ||
-  '/api';
+  '';
+
+if (!ENV_BASE_URL) {
+  const isBrowser = typeof window !== 'undefined';
+  const isLocalhost = isBrowser && (/^(localhost|127\.0\.0\.1)$/).test(window.location.hostname);
+  ENV_BASE_URL = isLocalhost ? 'http://localhost:5001/api' : '/api';
+}
 
 // Create a new Axios instance
 const api = axios.create({

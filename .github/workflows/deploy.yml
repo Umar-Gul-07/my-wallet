@@ -1,0 +1,40 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Add EC2 to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Push repo to EC2 and run deploy script
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          REPO_URL: ${{ secrets.REPO_URL }}
+          BRANCH: main
+          APP_NAME: kaka-wallet
+          APP_DIR: /var/www/kaka-wallet
+          BACKEND_DIR: Backend_
+          PORT: 5001
+        run: |
+          # Copy the repo (optional; script clones itself from REPO_URL). Here we just ensure deploy script is present.
+          scp -r scripts $EC2_USER@${EC2_HOST}:/tmp/kaka-wallet-scripts
+          # Execute deploy script remotely with environment overrides
+          ssh $EC2_USER@${EC2_HOST} \
+            "sudo bash -c 'REPO_URL=\"${REPO_URL}\" BRANCH=\"${BRANCH}\" APP_NAME=\"${APP_NAME}\" APP_DIR=\"${APP_DIR}\" BACKEND_DIR=\"${BACKEND_DIR}\" PORT=\"${PORT}\" bash -s' < /tmp/kaka-wallet-scripts/deploy_aws.sh"
