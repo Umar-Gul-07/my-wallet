@@ -51,6 +51,29 @@ export const syncDatabase = async () => {
     
     // Avoid SQLite alter migrations that cause backup/column mismatch issues
     await sequelize.sync();
+
+    // Ensure critical columns exist on users table to prevent 500s during admin creation
+    const qi = sequelize.getQueryInterface();
+    try {
+      const userDesc = await qi.describeTable('users');
+      const addIfMissing = async (columnName, definition) => {
+        if (!userDesc[columnName]) {
+          await qi.addColumn('users', columnName, definition);
+        }
+      };
+
+      await addIfMissing('is_admin', { type: 'BOOLEAN', allowNull: false, defaultValue: false });
+      await addIfMissing('admin_id', { type: 'INTEGER', allowNull: true });
+      await addIfMissing('join_date', { type: 'DATE', allowNull: true });
+      await addIfMissing('status', { type: 'TEXT', allowNull: true, defaultValue: 'active' });
+      await addIfMissing('notes', { type: 'TEXT', allowNull: true });
+      await addIfMissing('phone', { type: 'TEXT', allowNull: true });
+      await addIfMissing('address', { type: 'TEXT', allowNull: true });
+    } catch (ensureErr) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('❌ Failed ensuring users table columns:', ensureErr);
+      }
+    }
     if (process.env.NODE_ENV !== 'production') {
       console.log('✅ Database synchronized successfully.');
     }
