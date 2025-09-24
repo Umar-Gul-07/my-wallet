@@ -29,18 +29,11 @@ api.interceptors.request.use(
       }
     }
 
-    if (process.env.NODE_ENV !== 'production') {
-      // Log only in development
-      // eslint-disable-next-line no-console
-      console.log(`🚀 Request: [${config.method?.toUpperCase()}] ${config.baseURL}${config.url}`);
-    }
+    // Intentionally no console logs to keep browser console clean
     return config;
   },
   (error) => {
-    if (process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line no-console
-      console.error('❌ Request Error:', error);
-    }
+    // No console logs
     return Promise.reject(error);
   }
 );
@@ -48,18 +41,11 @@ api.interceptors.request.use(
 // Response interceptor
 api.interceptors.response.use(
   (response) => {
-    if (process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line no-console
-      console.log(`✅ Response: [${response.status}] ${response.config.url}`);
-    }
+    // No console logs
     return response;
   },
   (error) => {
-    if (process.env.NODE_ENV !== 'production') {
-      const errData = error.response?.data || error.message;
-      // eslint-disable-next-line no-console
-      console.error('❌ Response Error:', errData);
-    }
+    // No console logs
     return Promise.reject(error);
   }
 );

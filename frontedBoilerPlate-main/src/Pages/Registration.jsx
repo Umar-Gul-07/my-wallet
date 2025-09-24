@@ -86,7 +86,7 @@ const Registration = () => {
                 setError(response.message || 'Registration failed')
             }
         } catch (err) {
-            console.error('Registration error:', err)
+            // No console logs in browser; show friendly message in UI instead
             setError(err.response?.data?.message || 'Registration failed. Please try again.')
         } finally {
             setLoading(false)
