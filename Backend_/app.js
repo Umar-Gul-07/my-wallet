@@ -17,25 +17,9 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 // Middleware
-// Configure CORS with an allowlist to avoid wildcard with credentials
-const defaultAllowedOrigins = [
-  'http://localhost:3000',
-  'http://127.0.0.1:3000',
-  'https://your-frontend-domain.vercel.app'
-];
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
-  .split(',')
-  .map(o => o.trim())
-  .filter(Boolean);
-const corsAllowlist = allowedOrigins.length ? allowedOrigins : defaultAllowedOrigins;
-
+// CORS: allow all origins (frontend served by same Nginx host hitting /api)
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow non-browser requests (like curl/postman) where origin is undefined
-    if (!origin) return callback(null, true);
-    if (corsAllowlist.includes(origin)) return callback(null, true);
-    return callback(new Error('Not allowed by CORS'));
-  },
+  origin: true, // reflect request origin
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'x-admin-id', 'Authorization'],
   credentials: true,

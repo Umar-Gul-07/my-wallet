@@ -7,9 +7,10 @@
 # 1) Installs Node.js 18, PM2, Nginx and configures UFW
 # 2) Clones/updates your GitHub repo to /var/www/kaka-wallet
 # 3) Installs backend production dependencies (Backend_/)
-# 4) Creates .env if missing, with sensible defaults for SQLite
-# 5) Configures Nginx to proxy HTTP :80 -> backend :PORT (default 5001)
-# 6) Starts the backend with PM2 and enables startup on reboot
+# 4) Builds frontend (frontedBoilerPlate-main/) and serves it via Nginx
+# 5) Creates .env if missing, with sensible defaults for SQLite
+# 6) Configures Nginx to serve React on / and proxy /api -> backend :PORT (default 5001)
+# 7) Starts the backend with PM2 and enables startup on reboot
 #
 # Usage examples:
 # - Minimal (public repo):
@@ -34,6 +35,7 @@ IFS=$'\n\t'
 : "${APP_NAME:=kaka-wallet}"
 : "${APP_DIR:=/var/www/kaka-wallet}"
 : "${BACKEND_DIR:=Backend_}"
+: "${FRONTEND_DIR:=frontedBoilerPlate-main}"
 : "${PORT:=5001}"
 : "${NODE_MAJOR:=18}"
 
@@ -97,6 +99,25 @@ prepare_backend() {
   popd >/dev/null
 }
 
+build_frontend() {
+  # Build React app and place build output where Nginx can serve it
+  if [[ -d "${APP_DIR}/${FRONTEND_DIR}" ]]; then
+    log "Building frontend (${FRONTEND_DIR}) for production"
+    pushd "${APP_DIR}/${FRONTEND_DIR}" >/dev/null
+    # Ensure Node is available and install deps
+    if [[ -f package-lock.json ]]; then npm ci; else npm i; fi
+    # Build the app (CRA)
+    npm run build
+    popd >/dev/null
+
+    # Copy build to a stable web root
+    mkdir -p "/var/www/${APP_NAME}-frontend"
+    rsync -a --delete "${APP_DIR}/${FRONTEND_DIR}/build/" "/var/www/${APP_NAME}-frontend/"
+  else
+    log "Frontend directory not found (${APP_DIR}/${FRONTEND_DIR}). Skipping frontend build."
+  fi
+}
+
 configure_nginx() {
   log "Configuring Nginx reverse proxy on port 80"
   local conf="/etc/nginx/sites-available/${APP_NAME}.conf"
@@ -107,8 +128,18 @@ server {
 
     client_max_body_size 20m;
 
+    # Serve React build (if present)
+    root /var/www/${APP_NAME}-frontend;
+    index index.html;
+
+    # Try static file first, then fallback to index.html (SPA routing)
     location / {
-        proxy_pass http://127.0.0.1:${PORT};
+        try_files \$uri /index.html;
+    }
+
+    # API requests proxied to Node backend
+    location /api/ {
+        proxy_pass http://127.0.0.1:${PORT}/api/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
