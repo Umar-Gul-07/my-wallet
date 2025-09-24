@@ -8,7 +8,7 @@ let ENV_BASE_URL = process.env.REACT_APP_API_BASE_URL ||
 if (!ENV_BASE_URL) {
   const isBrowser = typeof window !== 'undefined';
   const isLocalhost = isBrowser && (/^(localhost|127\.0\.0\.1)$/).test(window.location.hostname);
-  ENV_BASE_URL = isLocalhost ? 'http://localhost:5001/api' : '/api';
+  ENV_BASE_URL = isLocalhost ? 'http://localhost:5002/api' : '/api';
 }
 
 // Create a new Axios instance
