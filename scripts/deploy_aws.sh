@@ -36,7 +36,7 @@ IFS=$'\n\t'
 : "${APP_DIR:=/var/www/kaka-wallet}"
 : "${BACKEND_DIR:=Backend_}"
 : "${FRONTEND_DIR:=frontedBoilerPlate-main}"
-: "${PORT:=5001}"
+: "${PORT:=5002}"
 : "${NODE_MAJOR:=18}"
 
 DEFAULT_ENV_CONTENT="PORT=${PORT}
