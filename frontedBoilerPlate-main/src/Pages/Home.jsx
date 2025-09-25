@@ -111,7 +111,7 @@ const Home = () => {
                             <div className="d-flex align-items-center gap-3">
                                 <div className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: 44, height: 44, background: 'rgba(255,255,255,0.1)' }}>
                                     <i className="fi fi-rr-dashboard" />
-                                </div>
+                                        </div>
                                 <div>
                                     <h3 className="mb-1" style={{ fontWeight: 700 }}>Dashboard</h3>
                                     <div className="text-white-50">{`Welcome ${UserInfo && UserInfo.name ? UserInfo.name : ''}`}</div>
@@ -122,11 +122,11 @@ const Home = () => {
                             <i className="fi fi-rr-home me-1" /> Home
                             <i className="fi fi-rr-angle-small-right mx-2" />
                             <span className="text-white">Overview</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
+                    
             <div className="content-body" style={{ minHeight: 1003, backgroundColor: '#f3f4f6' }}>
                 <div className="container py-4">
                     {/* Overall Financial Summary */}
@@ -139,14 +139,14 @@ const Home = () => {
                                         <span className="badge bg-light text-dark">Money + Loans</span>
                                     </div>
                                     <h2 className={`mb-2 ${stats?.overallBalance >= 0 ? 'text-success' : 'text-danger'}`} style={{ fontWeight: 700 }}>
-                                        {formatCurrency(stats?.overallBalance || 0)}
+                                                    {formatCurrency(stats?.overallBalance || 0)}
                                     </h2>
                                     <div className="text-secondary small">
                                         <i className="fi fi-rr-arrow-trend-up me-1" /> Combined Money Keeping + Loans
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                            </div>
+                                        </div>
+                                            </div>
+                                        </div>
                         <div className="col-12 col-lg-6">
                             <div className="card shadow-sm border-0 h-100">
                                 <div className="card-body">
