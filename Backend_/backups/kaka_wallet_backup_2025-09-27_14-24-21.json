@@ -1,0 +1,107 @@
+{
+  "metadata": {
+    "timestamp": "2025-09-27T13:24:22.400Z",
+    "totalUsers": 3,
+    "totalLoanPersons": 1
+  },
+  "users": [
+    {
+      "id": 1,
+      "name": "Admin User",
+      "email": "admin@kakawallet.com",
+      "phone": "+1234567890",
+      "address": null,
+      "password": "admin123",
+      "joinDate": "2025-07-05T17:47:54.892Z",
+      "status": "active",
+      "notes": null,
+      "isAdmin": true,
+      "adminId": null,
+      "createdAt": "2025-07-05T17:47:54.897Z",
+      "updatedAt": "2025-07-05T17:47:54.897Z",
+      "transactions": []
+    },
+    {
+      "id": 2,
+      "name": "Umar Gul",
+      "email": "umargul692002@gmail.com",
+      "phone": null,
+      "address": null,
+      "password": "Umar!123",
+      "joinDate": "2025-09-24T12:50:44.031Z",
+      "status": "active",
+      "notes": null,
+      "isAdmin": true,
+      "adminId": null,
+      "createdAt": "2025-09-24T12:50:44.035Z",
+      "updatedAt": "2025-09-24T12:50:44.035Z",
+      "transactions": []
+    },
+    {
+      "id": 3,
+      "name": "Umar Gul",
+      "email": "umargul62@gmail.com",
+      "phone": "03065953957",
+      "address": "Abbottabad",
+      "password": null,
+      "joinDate": "2025-09-24T12:53:45.792Z",
+      "status": "active",
+      "notes": "sd,mcn",
+      "isAdmin": false,
+      "adminId": 2,
+      "createdAt": "2025-09-24T12:53:45.792Z",
+      "updatedAt": "2025-09-24T12:53:45.792Z",
+      "transactions": [
+        {
+          "id": 1,
+          "userId": 3,
+          "type": "given",
+          "amount": 276362,
+          "description": "jkxcn",
+          "date": "2025-09-24T12:54:31.686Z",
+          "adminId": 2,
+          "createdAt": "2025-09-24T12:54:31.687Z",
+          "updatedAt": "2025-09-24T12:54:31.687Z"
+        }
+      ]
+    }
+  ],
+  "loanPersons": [
+    {
+      "id": 1,
+      "name": "Umar Gul",
+      "email": "umargul692002@gmail.com",
+      "phone": "03065953957",
+      "notes": "jzxcnjx",
+      "status": "active",
+      "joinDate": "2025-09-24T12:52:19.709Z",
+      "adminId": 2,
+      "createdAt": "2025-09-24T12:52:19.710Z",
+      "updatedAt": "2025-09-24T12:52:19.710Z",
+      "loans": [
+        {
+          "id": 1,
+          "loanPersonId": 1,
+          "type": "given",
+          "amount": 7823,
+          "description": "xjcn",
+          "date": "2025-09-24T12:52:31.420Z",
+          "adminId": 2,
+          "createdAt": "2025-09-24T12:52:31.420Z",
+          "updatedAt": "2025-09-24T12:52:31.420Z"
+        },
+        {
+          "id": 2,
+          "loanPersonId": 1,
+          "type": "repaid",
+          "amount": 1223,
+          "description": "sd,ncl",
+          "date": "2025-09-24T12:52:43.771Z",
+          "adminId": 2,
+          "createdAt": "2025-09-24T12:52:43.771Z",
+          "updatedAt": "2025-09-24T12:52:43.771Z"
+        }
+      ]
+    }
+  ]
+}
